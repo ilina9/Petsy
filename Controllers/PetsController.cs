@@ -1,28 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Petsy.Data;
+using Petsy.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Petsy.Controllers
 {
     public class PetsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMemoryCache _memoryCache;
 
-        public PetsController(ApplicationDbContext context)
+        public PetsController(ApplicationDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            _memoryCache = memoryCache;
         }
 
         // GET: Pets
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Pets.Include(p => p.Person);
-            return View(await applicationDbContext.ToListAsync());
+            List<Pet> pets;
+
+            if (!_memoryCache.TryGetValue("pets", out pets))
+            {
+                var applicationDbContext = _context.Pets.Include(p => p.Person);
+                pets = await applicationDbContext.ToListAsync();
+
+                MemoryCacheEntryOptions cacheOptions = new MemoryCacheEntryOptions();
+                cacheOptions.SetPriority(CacheItemPriority.Low);
+                cacheOptions.SetSlidingExpiration(new TimeSpan(0, 0, 15));
+                cacheOptions.SetAbsoluteExpiration(new TimeSpan(0, 0, 30));
+
+                _memoryCache.Set("pets", pets, cacheOptions);
+            }
+
+            return View(pets);
         }
 
         // GET: Pets/Details/5

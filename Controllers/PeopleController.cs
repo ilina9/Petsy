@@ -1,29 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Petsy.Data;
+using Petsy.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Petsy.Controllers
 {
     public class PeopleController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private IMemoryCache _memoryCache;
 
-        public PeopleController(ApplicationDbContext context)
+        public PeopleController(ApplicationDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            _memoryCache = memoryCache;
         }
 
         // GET: People
         public async Task<IActionResult> Index()
         {
-              return _context.People != null ? 
-                          View(await _context.People.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.People'  is null.");
+            List<Person> people;
+
+            if (!_memoryCache.TryGetValue("people", out people))
+            {
+                people = await _context.People.ToListAsync();
+
+                MemoryCacheEntryOptions cacheOptions = new MemoryCacheEntryOptions();
+                cacheOptions.SetPriority(CacheItemPriority.Low);
+                cacheOptions.SetSlidingExpiration(new TimeSpan(0, 0, 15));
+                cacheOptions.SetAbsoluteExpiration(new TimeSpan(0, 0, 30));
+
+                _memoryCache.Set("people", people, cacheOptions);
+            }
+
+            return View(people);
         }
 
         // GET: People/Details/5
@@ -156,7 +170,7 @@ namespace Petsy.Controllers
 
         private bool PersonExists(int id)
         {
-          return (_context.People?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.People?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

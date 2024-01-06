@@ -1,30 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Petsy.Data;
+using Petsy.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Petsy.Controllers
 {
     public class VaccinesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMemoryCache _memoryCache;
 
-        public VaccinesController(ApplicationDbContext context)
+        public VaccinesController(ApplicationDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            _memoryCache = memoryCache;
         }
 
         // GET: Vaccines
         public async Task<IActionResult> Index()
         {
-              return _context.Vaccines != null ? 
-                          View(await _context.Vaccines.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Vaccines'  is null.");
+            List<Vaccine> vaccines;
+
+            if (!_memoryCache.TryGetValue("vaccines", out vaccines))
+            {
+                vaccines = await _context.Vaccines.ToListAsync();
+
+                MemoryCacheEntryOptions cacheOptions = new MemoryCacheEntryOptions();
+                cacheOptions.SetPriority(CacheItemPriority.Low);
+                cacheOptions.SetSlidingExpiration(new TimeSpan(0, 0, 15));
+                cacheOptions.SetAbsoluteExpiration(new TimeSpan(0, 0, 30));
+
+                _memoryCache.Set("vaccines", vaccines, cacheOptions);
+            }
+
+            return View(vaccines);
         }
+
 
         // GET: Vaccines/Details/5
         public async Task<IActionResult> Details(int? id)
