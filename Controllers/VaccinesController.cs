@@ -115,6 +115,9 @@ namespace Petsy.Controllers
                 {
                     _context.Update(vaccine);
                     await _context.SaveChangesAsync();
+
+                    // Remove cache after update
+                    _memoryCache.Remove("vaccines");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -163,6 +166,8 @@ namespace Petsy.Controllers
             if (vaccine != null)
             {
                 _context.Vaccines.Remove(vaccine);
+                // Remove cache after update
+                _memoryCache.Remove("vaccines");
             }
             
             await _context.SaveChangesAsync();

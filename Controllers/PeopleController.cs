@@ -114,6 +114,8 @@ namespace Petsy.Controllers
                 {
                     _context.Update(person);
                     await _context.SaveChangesAsync();
+                    // Remove cache after update
+                    _memoryCache.Remove("people");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -162,6 +164,9 @@ namespace Petsy.Controllers
             if (person != null)
             {
                 _context.People.Remove(person);
+
+                // Remove cache after deletion
+                _memoryCache.Remove("people");
             }
             
             await _context.SaveChangesAsync();

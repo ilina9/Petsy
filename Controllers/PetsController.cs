@@ -120,6 +120,8 @@ namespace Petsy.Controllers
                 {
                     _context.Update(pet);
                     await _context.SaveChangesAsync();
+                    // Remove cache after update
+                    _memoryCache.Remove("pets");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -170,6 +172,8 @@ namespace Petsy.Controllers
             if (pet != null)
             {
                 _context.Pets.Remove(pet);
+                // Remove cache after deletion
+                _memoryCache.Remove("pets");
             }
             
             await _context.SaveChangesAsync();
