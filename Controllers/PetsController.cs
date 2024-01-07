@@ -28,7 +28,7 @@ namespace Petsy.Controllers
 
             if (!_memoryCache.TryGetValue("pets", out pets))
             {
-                var applicationDbContext = _context.Pets.Include(p => p.Person);
+                var applicationDbContext = _context.Pets.Include(p => p.Person).Include(p => p.Vaccines);
                 pets = await applicationDbContext.ToListAsync();
 
                 MemoryCacheEntryOptions cacheOptions = new MemoryCacheEntryOptions();
@@ -41,7 +41,6 @@ namespace Petsy.Controllers
 
             return View(pets);
         }
-
         // GET: Pets/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -64,7 +63,8 @@ namespace Petsy.Controllers
         // GET: Pets/Create
         public IActionResult Create()
         {
-            ViewData["PersonId"] = new SelectList(_context.People, "Id", "Id");
+            ViewData["PersonId"] = new SelectList(_context.People, "Id", "GetFullName");
+            ViewBag.VaccineList = new MultiSelectList(_context.Vaccines, "Id", "Name");
             return View();
         }
 
@@ -73,18 +73,32 @@ namespace Petsy.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Age,PersonId")] Pet pet)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,Age,PersonId")] Pet pet, int[] Vaccines)
         {
             if (ModelState.IsValid)
             {
+                if (Vaccines != null && Vaccines.Any())
+                {
+                    foreach (var vaccineId in Vaccines)
+                    {
+                        var vaccine = await _context.Vaccines.FindAsync(vaccineId);
+                        if (vaccine != null)
+                        {
+                            pet.Vaccines.Add(vaccine);
+                        }
+                    }
+                }
+
                 _context.Add(pet);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["PersonId"] = new SelectList(_context.People, "Id", "Id", pet.PersonId);
+
+            ViewData["PersonId"] = new SelectList(_context.People, "Id", "GetFullName", pet.PersonId);
+            ViewBag.VaccineList = new MultiSelectList(_context.Vaccines, "Id", "Name");
+
             return View(pet);
         }
-
         // GET: Pets/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -93,12 +107,17 @@ namespace Petsy.Controllers
                 return NotFound();
             }
 
-            var pet = await _context.Pets.FindAsync(id);
+            var pet = await _context.Pets
+                .Include(p => p.Vaccines)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (pet == null)
             {
                 return NotFound();
             }
-            ViewData["PersonId"] = new SelectList(_context.People, "Id", "Id", pet.PersonId);
+
+            ViewData["PersonId"] = new SelectList(_context.People, "Id", "GetFullName", pet.PersonId);
+            ViewBag.VaccineList = new MultiSelectList(_context.Vaccines, "Id", "Name", pet.Vaccines.Select(v => v.Id));
+
             return View(pet);
         }
 
@@ -107,7 +126,7 @@ namespace Petsy.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Age,PersonId")] Pet pet)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Age,PersonId")] Pet pet, int[] Vaccines)
         {
             if (id != pet.Id)
             {
@@ -118,7 +137,30 @@ namespace Petsy.Controllers
             {
                 try
                 {
-                    _context.Update(pet);
+                    // Load existing pet with vaccines
+                    var existingPet = await _context.Pets.Include(p => p.Vaccines).FirstOrDefaultAsync(p => p.Id == id);
+
+                    // Update pet properties
+                    existingPet.Name = pet.Name;
+                    existingPet.Description = pet.Description;
+                    existingPet.Age = pet.Age;
+                    existingPet.PersonId = pet.PersonId;
+
+                    // Update vaccines for the pet
+                    if (Vaccines != null)
+                    {
+                        existingPet.Vaccines.Clear();
+                        foreach (var vaccineId in Vaccines)
+                        {
+                            var vaccine = await _context.Vaccines.FindAsync(vaccineId);
+                            if (vaccine != null)
+                            {
+                                existingPet.Vaccines.Add(vaccine);
+                            }
+                        }
+                    }
+
+                    _context.Update(existingPet);
                     await _context.SaveChangesAsync();
                     // Remove cache after update
                     _memoryCache.Remove("pets");
@@ -136,7 +178,10 @@ namespace Petsy.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["PersonId"] = new SelectList(_context.People, "Id", "Id", pet.PersonId);
+
+            ViewData["PersonId"] = new SelectList(_context.People, "Id", "GetFullName", pet.PersonId);
+            ViewBag.VaccineList = new MultiSelectList(_context.Vaccines, "Id", "Name", pet.Vaccines.Select(v => v.Id));
+
             return View(pet);
         }
 
@@ -175,14 +220,14 @@ namespace Petsy.Controllers
                 // Remove cache after deletion
                 _memoryCache.Remove("pets");
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PetExists(int id)
         {
-          return (_context.Pets?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Pets?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

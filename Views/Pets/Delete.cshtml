@@ -29,11 +29,11 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Age)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Person)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Person.GetFullName)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Person.Id)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Person.GetFullName)
         </dd>
     </dl>
     

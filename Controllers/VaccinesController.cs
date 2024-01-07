@@ -76,6 +76,10 @@ namespace Petsy.Controllers
             {
                 _context.Add(vaccine);
                 await _context.SaveChangesAsync();
+
+                // Remove cache after creation
+                _memoryCache.Remove("vaccines");
+
                 return RedirectToAction(nameof(Index));
             }
             return View(vaccine);
