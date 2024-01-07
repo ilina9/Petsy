@@ -90,5 +90,4 @@ public async Task<IActionResult> Index()
 
 # Steps left to be implemented
 1. Implementing authorization with roles.
-2. Showing the person's full name when adding and looking at the pets list.
-3. Adding a Unit Test Project.
+2. Adding a Unit Test Project.
