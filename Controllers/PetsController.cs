@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -68,9 +69,6 @@ namespace Petsy.Controllers
             return View();
         }
 
-        // POST: Pets/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description,Age,PersonId")] Pet pet, int[] Vaccines)
@@ -91,6 +89,10 @@ namespace Petsy.Controllers
 
                 _context.Add(pet);
                 await _context.SaveChangesAsync();
+
+                // Remove the "pets" cache entry to force fetching the updated list from the database
+                _memoryCache.Remove("pets");
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -99,7 +101,9 @@ namespace Petsy.Controllers
 
             return View(pet);
         }
+
         // GET: Pets/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Pets == null)
@@ -126,6 +130,7 @@ namespace Petsy.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Age,PersonId")] Pet pet, int[] Vaccines)
         {
             if (id != pet.Id)
@@ -186,6 +191,7 @@ namespace Petsy.Controllers
         }
 
         // GET: Pets/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Pets == null)
@@ -207,6 +213,8 @@ namespace Petsy.Controllers
         // POST: Pets/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Pets == null)

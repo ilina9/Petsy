@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Petsy.Data
@@ -14,6 +15,7 @@ namespace Petsy.Data
         public DbSet<Person> People { get; set; }
         public DbSet<Vaccine> Vaccines { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -26,6 +28,24 @@ namespace Petsy.Data
             modelBuilder.Entity<Pet>()
                 .HasMany(p => p.Vaccines)
                 .WithMany(v => v.Pets);
+
+      
+
+            // Add a role "admin"
+            var adminRole = new IdentityRole
+            {
+                Name = "admin",
+                NormalizedName = "ADMIN"
+            };
+            modelBuilder.Entity<IdentityRole>().HasData(adminRole);
+
+            var userRole = new IdentityRole
+            {
+                Name = "user",
+                NormalizedName = "USER"
+            };
+
+            modelBuilder.Entity<IdentityRole>().HasData(userRole);
 
         }
     }

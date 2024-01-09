@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Petsy.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Petsy.Controllers;
 

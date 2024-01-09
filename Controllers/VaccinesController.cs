@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Petsy.Data;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Petsy.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class VaccinesController : Controller
     {
         private readonly ApplicationDbContext _context;

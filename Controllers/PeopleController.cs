@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Petsy.Data;
@@ -79,8 +80,9 @@ namespace Petsy.Controllers
             }
             return View(person);
         }
-
+    
         // GET: People/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.People == null)
@@ -95,12 +97,13 @@ namespace Petsy.Controllers
             }
             return View(person);
         }
-
+       
         // POST: People/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Surname,Age")] Person person)
         {
             if (id != person.Id)
@@ -134,6 +137,7 @@ namespace Petsy.Controllers
         }
 
         // GET: People/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.People == null)
@@ -150,10 +154,10 @@ namespace Petsy.Controllers
 
             return View(person);
         }
-
         // POST: People/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.People == null)
