@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Petsy.Controllers
 {
-    [Authorize(Roles = "Admin")]
+   
     public class VaccinesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -62,6 +62,7 @@ namespace Petsy.Controllers
         }
 
         // GET: Vaccines/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -88,6 +89,7 @@ namespace Petsy.Controllers
         }
 
         // GET: Vaccines/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Vaccines == null)
@@ -108,6 +110,7 @@ namespace Petsy.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Vaccine vaccine)
         {
             if (id != vaccine.Id)
@@ -142,6 +145,7 @@ namespace Petsy.Controllers
         }
 
         // GET: Vaccines/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Vaccines == null)
@@ -162,6 +166,7 @@ namespace Petsy.Controllers
         // POST: Vaccines/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Vaccines == null)
