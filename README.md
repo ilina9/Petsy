@@ -86,8 +86,11 @@ public async Task<IActionResult> Index()
 ```<csharp>
  _memoryCache.Remove("people");
  ```
-    
+
+### Adding roles and authorization
+- Added "Admin" and "User" roles in SQL
+- Connected "Admin" with the admin user and the other users with "User"
 
 # Steps left to be implemented
-1. Implementing authorization with roles.
+1. Being able to select multiple vaccines and showing all of them in the pets details.
 2. Adding a Unit Test Project.

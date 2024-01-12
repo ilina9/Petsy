@@ -14,8 +14,4 @@ public class Pet
     public Person? Person { get; set; }
     public List<Vaccine> Vaccines { get; set; } = new List<Vaccine>();
 
-    public Pet()
-    {
-        Vaccines = new List<Vaccine>();
-    }
 }

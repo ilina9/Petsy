@@ -29,6 +29,9 @@ namespace Petsy.Data
                 .HasMany(p => p.Vaccines)
                 .WithMany(v => v.Pets);
 
+            modelBuilder.Entity<Vaccine>()
+        .HasMany(v => v.Pets)
+        .WithMany(p => p.Vaccines);
       
 
             // Add a role "admin"

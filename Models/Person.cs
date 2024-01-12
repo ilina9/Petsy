@@ -13,11 +13,6 @@ public class Person
     public int Age { get; set; }
     public List<Pet> Pets { get; set; }
 
-    public Person()
-    {
-        Pets = new List<Pet>();
-    }
-
     [DisplayName("Owner's Full Name")]
     public string GetFullName
     {

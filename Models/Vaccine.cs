@@ -6,8 +6,4 @@ public class Vaccine
     public string Name { get; set; }
     public List<Pet> Pets { get; set; } = new List<Pet>();
 
-    public Vaccine()
-    {
-        Pets = new List<Pet>();
-    }
 }

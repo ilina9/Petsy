@@ -97,7 +97,7 @@ namespace Petsy.Controllers
             }
 
             ViewData["PersonId"] = new SelectList(_context.People, "Id", "GetFullName", pet.PersonId);
-            ViewBag.VaccineList = new MultiSelectList(_context.Vaccines, "Id", "Name");
+            ViewBag.VaccineList = new MultiSelectList(_context.Vaccines, "Id", "Name", Vaccines);
 
             return View(pet);
         }
@@ -111,7 +111,7 @@ namespace Petsy.Controllers
                 return NotFound();
             }
 
-            var pet = await _context.Pets
+            var pet = await _context.Pets.Include(m => m.Vaccines)
                 .Include(p => p.Vaccines)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (pet == null)
