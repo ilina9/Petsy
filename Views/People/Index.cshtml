@@ -1,4 +1,5 @@
-﻿@model IEnumerable<Person>
+﻿@using Petsy.Models
+@model IEnumerable<Person>
 
 @{
     ViewData["Title"] = "Index";
@@ -22,6 +23,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Age)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Pets)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -38,6 +42,11 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Age)
                 </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Pets.Count)
+
+                </td>
+
                 <td>
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a>
 

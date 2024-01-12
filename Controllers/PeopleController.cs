@@ -28,7 +28,7 @@ namespace Petsy.Controllers
 
             if (!_memoryCache.TryGetValue("people", out people))
             {
-                people = await _context.People.ToListAsync();
+                people = await _context.People.Include(x => x.Pets).ToListAsync();
 
                 MemoryCacheEntryOptions cacheOptions = new MemoryCacheEntryOptions();
                 cacheOptions.SetPriority(CacheItemPriority.Low);
@@ -49,7 +49,7 @@ namespace Petsy.Controllers
                 return NotFound();
             }
 
-            var person = await _context.People
+            var person = await _context.People.Include(x => x.Pets)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (person == null)
             {

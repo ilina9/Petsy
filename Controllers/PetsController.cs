@@ -65,19 +65,21 @@ namespace Petsy.Controllers
         public IActionResult Create()
         {
             ViewData["PersonId"] = new SelectList(_context.People, "Id", "GetFullName");
-            ViewBag.VaccineList = new MultiSelectList(_context.Vaccines, "Id", "Name");
+            ViewData["VaccineId"] = new MultiSelectList(_context.Vaccines, "Id", "Name");
             return View();
         }
-
+        // POST: Pets/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Age,PersonId")] Pet pet, int[] Vaccines)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,Age,PersonId,VaccinesParams")] Pet pet)
         {
             if (ModelState.IsValid)
             {
-                if (Vaccines != null && Vaccines.Any())
+                if (pet.VaccinesParams != null && pet.VaccinesParams.Any())
                 {
-                    foreach (var vaccineId in Vaccines)
+                    foreach (var vaccineId in pet.VaccinesParams)
                     {
                         var vaccine = await _context.Vaccines.FindAsync(vaccineId);
                         if (vaccine != null)
@@ -97,7 +99,6 @@ namespace Petsy.Controllers
             }
 
             ViewData["PersonId"] = new SelectList(_context.People, "Id", "GetFullName", pet.PersonId);
-            ViewBag.VaccineList = new MultiSelectList(_context.Vaccines, "Id", "Name", Vaccines);
 
             return View(pet);
         }
@@ -120,8 +121,7 @@ namespace Petsy.Controllers
             }
 
             ViewData["PersonId"] = new SelectList(_context.People, "Id", "GetFullName", pet.PersonId);
-            ViewBag.VaccineList = new MultiSelectList(_context.Vaccines, "Id", "Name", pet.Vaccines.Select(v => v.Id));
-
+            ViewData["VaccineId"] = new MultiSelectList(_context.Vaccines, "Id", "Name", pet.Vaccines.Select(x => x.Id));
             return View(pet);
         }
 
@@ -131,7 +131,7 @@ namespace Petsy.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Age,PersonId")] Pet pet, int[] Vaccines)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Age,PersonId,VaccinesParams")] Pet pet)
         {
             if (id != pet.Id)
             {
@@ -152,10 +152,10 @@ namespace Petsy.Controllers
                     existingPet.PersonId = pet.PersonId;
 
                     // Update vaccines for the pet
-                    if (Vaccines != null)
+                    if (pet.VaccinesParams != null)
                     {
                         existingPet.Vaccines.Clear();
-                        foreach (var vaccineId in Vaccines)
+                        foreach (var vaccineId in pet.VaccinesParams)
                         {
                             var vaccine = await _context.Vaccines.FindAsync(vaccineId);
                             if (vaccine != null)

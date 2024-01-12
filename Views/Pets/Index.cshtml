@@ -46,11 +46,7 @@
                 </td>
 
                 <td>
-                    @foreach (var vaccine in item.Vaccines)
-                    {
-                        <span>@vaccine.Name</span>
-                        <br />
-                    }
+                    @Html.DisplayFor(modelItem => item.Vaccines.Count)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Person.GetFullName)

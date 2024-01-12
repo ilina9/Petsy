@@ -20,20 +20,6 @@ namespace Petsy.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Pet>()
-                .HasOne(p => p.Person)
-                .WithMany(o => o.Pets)
-                .HasForeignKey(p => p.PersonId);
-
-            modelBuilder.Entity<Pet>()
-                .HasMany(p => p.Vaccines)
-                .WithMany(v => v.Pets);
-
-            modelBuilder.Entity<Vaccine>()
-        .HasMany(v => v.Pets)
-        .WithMany(p => p.Vaccines);
-      
-
             // Add a role "admin"
             var adminRole = new IdentityRole
             {

@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
-
+[DisplayName("Owner")]
 public class Person
 {
     public int Id { get; set; }
