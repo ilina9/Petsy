@@ -52,6 +52,7 @@ namespace Petsy.Controllers
 
             var pet = await _context.Pets
                 .Include(p => p.Person)
+                .Include(x => x.Vaccines)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (pet == null)
             {

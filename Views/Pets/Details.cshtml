@@ -29,11 +29,16 @@
             @Html.DisplayFor(model => model.Age)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Vaccines)
+            @Html.DisplayNameFor(model => model.Person)
         </dt>
         <dd class="col-sm-10">
-            
+            @Model.Person.GetFullName
         </dd>
+        <dt style="margin-bottom:10px;">Vaccines</dt>
+        @foreach (var item in Model.Vaccines)
+        {
+            <dd class="col-sm-10" style="margin-left:15px;">@item.Name</dd>
+        }
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
