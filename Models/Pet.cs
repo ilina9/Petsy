@@ -11,7 +11,7 @@ public class Pet
     public string Description { get; set; }
     [Range(0, 50, ErrorMessage = "Pet age must be between 0 and 50.")]
     public int Age { get; set; }
-    [Display(Name = "Person")]
+    [Display(Name = "Owner")]
     public int? PersonId { get; set; }
 
     public Person? Person { get; set; }

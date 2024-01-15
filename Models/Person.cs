@@ -11,7 +11,7 @@ public class Person
     public string Surname { get; set; }
     [Range(18, 100, ErrorMessage = "Age must be between 18 and 100.")]
     public int Age { get; set; }
-    public List<Pet> Pets { get; set; }
+    public List<Pet> Pets { get; set; } = new List<Pet>();
 
     [DisplayName("Owner's Full Name")]
     public string GetFullName

@@ -76,11 +76,16 @@ namespace Petsy.Controllers
             {
                 _context.Add(person);
                 await _context.SaveChangesAsync();
+
+                // Remove the "people" cache entry in order to fetch the updated list from the database
+                _memoryCache.Remove("people");
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(person);
         }
-    
+
         // GET: People/Edit/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
